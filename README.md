@@ -1,2 +1,2 @@
-# Entropy-Patcher
-Entropy Linux update script &amp; end-point
+# EPM
+Entropy Linux package management
