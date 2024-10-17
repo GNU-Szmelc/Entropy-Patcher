@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+echo "Run this script in fullscreen... [F11]" && sleep 3
+
 # The URL of the script to download
 SCRIPT_URL="https://raw.githubusercontent.com/Szmelc-INC/Entropy-Package-Manager/main/updates/recent.sh"
 
@@ -122,3 +124,5 @@ chmod +x $DOWNLOAD_LOCATION
 
 # Execute the downloaded script
 bash $DOWNLOAD_LOCATION
+
+# xdotool key F11
