@@ -1,0 +1,124 @@
+#!/bin/zsh
+
+# The URL of the script to download
+SCRIPT_URL="https://raw.githubusercontent.com/Szmelc-INC/Entropy-Package-Manager/main/updates/recent.sh"
+
+# Define color and formatting variables (using correct ANSI escape sequences)
+RED=$'\e[31m'
+GREEN=$'\e[32m'
+YELLOW=$'\e[33m'
+BLUE=$'\e[34m'
+MAGENTA=$'\e[35m'
+CYAN=$'\e[36m'
+BOLD=$'\e[1m'
+UNDERLINE=$'\e[4m'
+RESET=$'\e[0m'
+
+# The location to save the downloaded script
+DOWNLOAD_LOCATION="/tmp/recent.sh"
+
+# Function to request sudo password and keep the session alive
+request_sudo() {
+    echo "Requesting sudo password to proceed..."
+    sudo -v
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+}
+
+# Function to open URL in a new thread
+open_url_in_browser() {
+    (xdg-open $SCRIPT_URL &)
+}
+
+clear 
+
+# Get terminal dimensions
+width=$(tput cols)
+height=$(tput lines)
+
+# Box 1 content (keep figlet and lolcat formatting intact, 50 wide)
+box1=$(figlet -f smblock " Szmelc Update " | lolcat -f | boxes -d ansi-heavy -i text -a hcvc -s 50x5)
+
+# Box 2 content (centered under Box 1 with 10 spaces on each side, 30 wide)
+formatted_text=$(echo "
+-${CYAN}${BOLD} [y] Install${RESET}
+-${YELLOW} [v] View the script${RESET} 
+-${RED} [n] Cancel${RESET}
+")
+
+box2=$(echo "${formatted_text}" | boxes -d ansi-heavy -s 30x7 -a hcvc -i text)
+
+# Get individual box dimensions
+box1_height=$(echo "$box1" | wc -l)
+box1_width=$(echo "$box1" | head -n 1 | wc -c)
+box1_width=$((box1_width - 1))  # Adjust for trailing spaces
+
+box2_height=$(echo "$box2" | wc -l)
+box2_width=$(echo "$box2" | head -n 1 | wc -c)
+box2_width=$((box2_width - 1))  # Adjust for trailing spaces
+
+# Calculate vertical and horizontal offsets to center boxes
+total_height=$((box1_height + box2_height + 1))  # Extra line for spacing
+vert_offset=$(((height - total_height) / 7))
+
+horiz_offset_box1=$(((width - box1_width) / 2))
+horiz_offset_box2=$(((box1_width - box2_width) / 2 + horiz_offset_box1))
+
+# Calculate the length of the centered message and the offset for it
+message=" Update Manager for Entropy Linux "
+horiz_offset_message=$(((horiz_offset_box1-8)))
+
+# Print vertical padding before Box 1
+for ((i = 0; i < vert_offset; i++)); do echo ""; done
+
+# Print Box 1
+echo "$box1" | while IFS= read -r line; do
+  printf "%*s%s\n" "$horiz_offset_box1" "" "$line"
+done
+
+# Print msg
+printf "%*s${RED}%s${RESET}\n" "$horiz_offset_message" "" "$message"
+
+echo ""
+
+# Print Box 2
+echo "$box2" | while IFS= read -r line; do
+  printf "%*s%s\n" "$horiz_offset_box1-10" "" "$line"
+done
+
+# Prompt the user for input
+echo ""
+printf "%*s%s\n" "$horiz_offset_box1-13" "" " Select option [y/n/v]:"
+read -r response
+
+echo '\n\n'
+# Handle user response
+case "$response" in
+    [vV])
+        echo "Opening the script in the browser..."
+        open_url_in_browser
+        exit 0
+        ;;
+    [nN])
+        echo "Installation cancelled."
+        exit 0
+        ;;
+    [yY])
+        echo "Proceeding with the installation..."
+        ;;
+    *)
+        echo "Invalid response. Installation cancelled."
+        exit 1
+        ;;
+esac
+
+# Request sudo password
+request_sudo
+
+# Download the script from the specified URL
+curl -sSL $SCRIPT_URL -o $DOWNLOAD_LOCATION
+
+# Make the downloaded script executable
+chmod +x $DOWNLOAD_LOCATION
+
+# Execute the downloaded script
+bash $DOWNLOAD_LOCATION
