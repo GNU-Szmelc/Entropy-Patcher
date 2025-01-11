@@ -3,8 +3,18 @@
 # ==== BETTER RUN COMMAND ===
 # ======== SZMELC.INC =======
 
-# Load it with `source testrc`, then
-# List all functions, aliases and env vars of rc file with: `listrc <file>`
+# Initial Welcome Prompt to tmp log
+figlet .TestRC > /tmp/testrc-log 
+echo 'Better Run Command v1 ~ By $x66' >> /tmp/testrc-log
+echo ' - Initial load: [source .testrc]' >> /tmp/testrc-log
+echo ' - Reload config: [reloadrc]' >> /tmp/testrc-log
+echo ' - List functions: [listrc <file>]' >> /tmp/testrc-log
+cat /tmp/testrc-log | boxes -d tux > /tmp/testrcx-log && mv /tmp/testrcx-log /tmp/testrc-log
+echo '\n - Add [source ~/.testrc] to ~/.zshrc to make it autoload' >> /tmp/testrc-log
+echo ' - [ https://github.com/Szmelc-INC/Entropy-Package-Manager ]' >> /tmp/testrc-log
+
+# REMOVE THIS LINE TO DISABLE WELCOME PROMPT
+clear && echo "\n" && cat /tmp/testrc-log | lolcat && echo "\n\n"
 
 # NET-PACK
 # Detailed IP info
